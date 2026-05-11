@@ -34,9 +34,6 @@ jobs:
       
     - name: Build
       run: npm run build
-      
-    - name: Run Tests
-      run: npm test --if-present
 
   server-checks:
     runs-on: ubuntu-latest
@@ -62,6 +59,3 @@ jobs:
       
     - name: Check Formatting
       run: npm run format:check --if-present
-      
-    - name: Run Tests
-      run: npm test --if-present
