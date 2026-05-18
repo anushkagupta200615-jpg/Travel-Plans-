@@ -392,20 +392,16 @@ exports.verifyOtp = async (req, res, next) => {
 
     // Check if OTP matches
     if (user.otp !== otp) {
-      return res
-        .status(400)
-        .json({
-          msg: "Invalid verification code. Please check and try again.",
-        });
+      return res.status(400).json({
+        msg: "Invalid verification code. Please check and try again.",
+      });
     }
 
     // Check if OTP is expired
     if (new Date(user.otpExpire).getTime() < Date.now()) {
-      return res
-        .status(400)
-        .json({
-          msg: "Verification code has expired. Please request a new one.",
-        });
+      return res.status(400).json({
+        msg: "Verification code has expired. Please request a new one.",
+      });
     }
 
     // Successful verification
@@ -764,11 +760,9 @@ exports.verifyEmailChange = async (req, res, next) => {
       !user.otpExpire ||
       new Date(user.otpExpire).getTime() < now
     ) {
-      return res
-        .status(400)
-        .json({
-          msg: "Verification code has expired. Please request a new one.",
-        });
+      return res.status(400).json({
+        msg: "Verification code has expired. Please request a new one.",
+      });
     }
 
     // Check value
