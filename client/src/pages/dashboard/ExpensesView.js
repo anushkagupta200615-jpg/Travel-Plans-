@@ -464,10 +464,17 @@ const ExpensesView = () => {
       </Grid>
 
       {/* Add Expense Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle sx={{ fontWeight: 700 }}>Add Expense</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Box
+            sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2.5 }}
+          >
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
@@ -484,7 +491,9 @@ const ExpensesView = () => {
                   select
                   label="Currency"
                   value={form.currency}
-                  onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, currency: e.target.value })
+                  }
                 >
                   {["INR", "USD", "EUR", "GBP"].map((c) => (
                     <MenuItem key={c} value={c}>
@@ -511,7 +520,9 @@ const ExpensesView = () => {
               fullWidth
               label="Description / Note"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
             />
             <TextField
               fullWidth

@@ -194,7 +194,11 @@ const Register = () => {
                       onClick={toggleShowPassword}
                       edge="end"
                     >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      {showPassword ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -253,7 +257,10 @@ const Register = () => {
       case 2:
         return (
           <Box sx={{ textAlign: "center", py: 2 }}>
-            <CheckCircleOutlineIcon color="success" sx={{ fontSize: 64, mb: 2 }} />
+            <CheckCircleOutlineIcon
+              color="success"
+              sx={{ fontSize: 64, mb: 2 }}
+            />
             <Typography variant="h6" gutterBottom>
               Almost there!
             </Typography>
@@ -314,16 +321,41 @@ const Register = () => {
             }}
           />
           <Box sx={{ position: "relative", p: 6, color: "white" }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{ fontWeight: 700, mb: 2 }}
+            >
               Join PackGo
             </Typography>
             <Typography variant="h5" sx={{ mb: 4, maxWidth: "80%" }}>
               Create an account to start planning your next adventure
             </Typography>
             <Box sx={{ display: "flex", gap: 1, mb: 4 }}>
-              <Box sx={{ width: 12, height: 12, bgcolor: "white", borderRadius: "50%" }} />
-              <Box sx={{ width: 12, height: 12, bgcolor: "rgba(255, 255, 255, 0.5)", borderRadius: "50%" }} />
-              <Box sx={{ width: 12, height: 12, bgcolor: "rgba(255, 255, 255, 0.5)", borderRadius: "50%" }} />
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "white",
+                  borderRadius: "50%",
+                }}
+              />
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "rgba(255, 255, 255, 0.5)",
+                  borderRadius: "50%",
+                }}
+              />
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "rgba(255, 255, 255, 0.5)",
+                  borderRadius: "50%",
+                }}
+              />
             </Box>
           </Box>
         </Box>
@@ -402,7 +434,9 @@ const Register = () => {
                     </Typography>
                   </Divider>
 
-                  <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", gap: 2 }}
+                  >
                     <Button
                       variant="outlined"
                       startIcon={<GoogleIcon />}

@@ -107,13 +107,28 @@ const Login = () => {
             </Typography>
             <Box sx={{ display: "flex", gap: 1, mb: 4 }}>
               <Box
-                sx={{ width: 12, height: 12, bgcolor: "white", borderRadius: "50%" }}
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "white",
+                  borderRadius: "50%",
+                }}
               />
               <Box
-                sx={{ width: 12, height: 12, bgcolor: "rgba(255, 255, 255, 0.5)", borderRadius: "50%" }}
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "rgba(255, 255, 255, 0.5)",
+                  borderRadius: "50%",
+                }}
               />
               <Box
-                sx={{ width: 12, height: 12, bgcolor: "rgba(255, 255, 255, 0.5)", borderRadius: "50%" }}
+                sx={{
+                  width: 12,
+                  height: 12,
+                  bgcolor: "rgba(255, 255, 255, 0.5)",
+                  borderRadius: "50%",
+                }}
               />
             </Box>
           </Box>
@@ -182,7 +197,11 @@ const Login = () => {
                         onClick={toggleShowPassword}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -208,7 +227,11 @@ const Login = () => {
                   }
                   label="Remember me"
                 />
-                <Link component={RouterLink} to="/forgot-password" variant="body2">
+                <Link
+                  component={RouterLink}
+                  to="/forgot-password"
+                  variant="body2"
+                >
                   Forgot password?
                 </Link>
               </Box>

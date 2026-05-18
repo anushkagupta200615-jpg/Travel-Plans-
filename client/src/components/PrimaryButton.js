@@ -1,7 +1,13 @@
-import React from 'react';
-import { Button } from '@mui/material';
+import React from "react";
+import { Button } from "@mui/material";
 
-const PrimaryButton = ({ children, onClick, disabled, size = 'medium', ...rest }) => {
+const PrimaryButton = ({
+  children,
+  onClick,
+  disabled,
+  size = "medium",
+  ...rest
+}) => {
   return (
     <Button
       variant="contained"
