@@ -56,7 +56,9 @@ const DashboardHome = () => {
   const userName = user?.name?.split(" ")[0] || "Traveler";
 
   const totalTrips = tripsArr.length;
-  const completedTrips = tripsArr.filter((t) => t.status === "completed").length;
+  const completedTrips = tripsArr.filter(
+    (t) => t.status === "completed",
+  ).length;
   const plannedTrips = tripsArr.filter((t) => t.status === "planned").length;
   const ongoingTrips = tripsArr.filter((t) => t.status === "ongoing").length;
 
@@ -71,7 +73,20 @@ const DashboardHome = () => {
     .slice(0, 3);
 
   const monthlyData = (() => {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const counts = Array(12).fill(0);
     tripsArr.forEach((t) => {
       const m = new Date(t.startDate).getMonth();
@@ -247,7 +262,11 @@ const DashboardHome = () => {
                     >
                       {action.icon}
                     </Box>
-                    <Typography variant="body2" fontWeight={700} color="text.primary">
+                    <Typography
+                      variant="body2"
+                      fontWeight={700}
+                      color="text.primary"
+                    >
                       {action.label}
                     </Typography>
                   </Paper>
@@ -288,7 +307,10 @@ const DashboardHome = () => {
                     style={{ fontSize: 12 }}
                   />
                   <Tooltip
-                    contentStyle={{ borderRadius: 8, border: "1px solid #e0e0e0" }}
+                    contentStyle={{
+                      borderRadius: 8,
+                      border: "1px solid #e0e0e0",
+                    }}
                     formatter={(v) => [v, "Trips"]}
                   />
                   <Bar dataKey="trips" fill="#1976D2" radius={[6, 6, 0, 0]} />
@@ -351,7 +373,9 @@ const DashboardHome = () => {
               borderColor: "divider",
             }}
           >
-            <FlightTakeoffIcon sx={{ fontSize: 56, color: "text.disabled", mb: 2 }} />
+            <FlightTakeoffIcon
+              sx={{ fontSize: 56, color: "text.disabled", mb: 2 }}
+            />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No trips yet
             </Typography>
@@ -366,7 +390,10 @@ const DashboardHome = () => {
           </Paper>
         ) : (
           <Grid container spacing={3}>
-            {(upcomingTrips.length > 0 ? upcomingTrips : tripsArr.slice(0, 3)).map((trip) => (
+            {(upcomingTrips.length > 0
+              ? upcomingTrips
+              : tripsArr.slice(0, 3)
+            ).map((trip) => (
               <Grid item xs={12} md={6} lg={4} key={trip._id}>
                 <Card
                   elevation={0}
@@ -378,7 +405,10 @@ const DashboardHome = () => {
                     "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
                   }}
                 >
-                  <CardActionArea component={Link} to={`/dashboard/trips/${trip._id}`}>
+                  <CardActionArea
+                    component={Link}
+                    to={`/dashboard/trips/${trip._id}`}
+                  >
                     <Box sx={{ position: "relative", pt: "50%" }}>
                       <Box
                         component="img"
@@ -422,10 +452,13 @@ const DashboardHome = () => {
                       >
                         <DateRangeIcon fontSize="small" color="action" />
                         <Typography variant="body2" color="text.secondary">
-                          {new Date(trip.startDate).toLocaleDateString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                          })}{" "}
+                          {new Date(trip.startDate).toLocaleDateString(
+                            "en-IN",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                            },
+                          )}{" "}
                           –{" "}
                           {new Date(trip.endDate).toLocaleDateString("en-IN", {
                             day: "2-digit",
