@@ -87,12 +87,12 @@ exports.searchFlights = async (req, res) => {
 
     if (minBudget !== undefined && minBudget !== "") {
       filteredFlights = filteredFlights.filter(
-        (f) => f.price >= Number(minBudget)
+        (f) => f.price >= Number(minBudget),
       );
     }
     if (maxBudget !== undefined && maxBudget !== "") {
       filteredFlights = filteredFlights.filter(
-        (f) => f.price <= Number(maxBudget)
+        (f) => f.price <= Number(maxBudget),
       );
     }
 
@@ -187,26 +187,26 @@ exports.searchHotels = async (req, res) => {
     // Budget filter
     if (minBudget !== undefined && minBudget !== "") {
       filteredHotels = filteredHotels.filter(
-        (h) => h.price >= Number(minBudget)
+        (h) => h.price >= Number(minBudget),
       );
     }
     if (maxBudget !== undefined && maxBudget !== "") {
       filteredHotels = filteredHotels.filter(
-        (h) => h.price <= Number(maxBudget)
+        (h) => h.price <= Number(maxBudget),
       );
     }
 
     // Rating filter
     if (minRating !== undefined && minRating !== "" && Number(minRating) > 0) {
       filteredHotels = filteredHotels.filter(
-        (h) => h.rating >= Number(minRating)
+        (h) => h.rating >= Number(minRating),
       );
     }
 
     // Amenities filter — hotel must have ALL selected amenities
     if (amenities && amenities.length > 0) {
       filteredHotels = filteredHotels.filter((h) =>
-        amenities.every((a) => h.amenities.includes(a))
+        amenities.every((a) => h.amenities.includes(a)),
       );
     }
 
