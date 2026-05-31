@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Typography,
@@ -17,6 +17,9 @@ import {
 import TranslateIcon from "@mui/icons-material/Translate";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import MicIcon from "@mui/icons-material/Mic";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import StopIcon from "@mui/icons-material/Stop";
 import { translateText } from "../../redux/actions/translatorActions";
 
 const LANGUAGES = [
@@ -52,21 +55,49 @@ const TranslatorView = () => {
   const [sourceLang, setSourceLang] = useState("auto");
   const [targetLang, setTargetLang] = useState("hi");
   const [copied, setCopied] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const [detectedLang, setDetectedLang] = useState("");
+  const recognitionRef = useRef(null);
 
   const { translation, loading, error } = useSelector(
     (state) => state.translator,
   );
   const translatedText = translation?.translatedText || "";
 
+  // speech recognition setup
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) { setSpeechSupported(false); return; }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = sourceLang === "auto" ? "" : sourceLang;
+    recognition.onresult = (e) => {
+      let transcript = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript;
+      }
+      setText(transcript);
+      if (e.results[0]) setDetectedLang(e.results[0][0].lang || "");
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognitionRef.current = recognition;
+  }, [sourceLang]);
+
+  // auto-translate when speech ends
+  useEffect(() => {
+    if (!isListening && text.trim()) {
+      dispatch(translateText({ text, sourceLanguage: sourceLang, targetLanguage: targetLang }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isListening]);
+
   const handleTranslate = () => {
     if (text.trim()) {
-      dispatch(
-        translateText({
-          text,
-          sourceLanguage: sourceLang,
-          targetLanguage: targetLang,
-        }),
-      );
+      dispatch(translateText({ text, sourceLanguage: sourceLang, targetLanguage: targetLang }));
     }
   };
 
@@ -87,32 +118,41 @@ const TranslatorView = () => {
     }
   };
 
+  const handleVoiceInput = () => {
+    if (!recognitionRef.current) return;
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setText("");
+      setDetectedLang("");
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+  const handleSpeakTranslation = () => {
+    if (!translatedText) return;
+    const utterance = new SpeechSynthesisUtterance(translatedText);
+    utterance.lang = targetLang;
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" fontWeight={700} mb={0.5}>
         Live Translator
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Translate text instantly for your travels
+        Type or speak a phrase to translate it instantly
       </Typography>
 
       {/* Common Phrases */}
       <Paper
         elevation={0}
-        sx={{
-          p: 2.5,
-          borderRadius: 3,
-          mb: 3,
-          border: "1px solid",
-          borderColor: "divider",
-        }}
+        sx={{ p: 2.5, borderRadius: 3, mb: 3, border: "1px solid", borderColor: "divider" }}
       >
-        <Typography
-          variant="subtitle2"
-          fontWeight={700}
-          mb={1.5}
-          color="text.secondary"
-        >
+        <Typography variant="subtitle2" fontWeight={700} mb={1.5} color="text.secondary">
           🗣️ Common Travel Phrases
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -129,77 +169,91 @@ const TranslatorView = () => {
         </Box>
       </Paper>
 
-      {/* Translation Box */}
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={5}>
+      {/* Translation Panels — Box flex instead of Grid to avoid MUI v9 issues */}
+<Box
+  sx={{
+    display: "flex",
+    flexDirection: { xs: "column", lg: "row" },
+    gap: { xs: 2.5, lg: 3 },
+    alignItems: { xs: "stretch", lg: "flex-start" },
+    width: "100%",
+  }}
+>
+
+        {/* Left Panel */}
+        <Box sx={{ flex: { xs: "none", lg: 1 }, width: "100%" }}>
           <Paper
             elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              border: "1px solid",
-              borderColor: "divider",
-              height: "100%",
-            }}
+            sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}
           >
             <TextField
-              select
-              fullWidth
-              label="From"
+              select fullWidth label="From"
               value={sourceLang}
               onChange={(e) => setSourceLang(e.target.value)}
               sx={{ mb: 2 }}
             >
               {LANGUAGES.map((l) => (
-                <MenuItem key={l.code} value={l.code}>
-                  {l.name}
-                </MenuItem>
+                <MenuItem key={l.code} value={l.code}>{l.name}</MenuItem>
               ))}
             </TextField>
+
             <TextField
-              fullWidth
-              multiline
-              rows={6}
-              variant="outlined"
+              fullWidth multiline rows={6} variant="outlined"
               placeholder="Enter text to translate..."
               value={text}
               onChange={(e) => setText(e.target.value)}
               sx={{ bgcolor: "grey.50", borderRadius: 2 }}
             />
+
+            {detectedLang && (
+              <Typography variant="caption" sx={{ mt: 0.5, display: "block", color: "text.secondary" }}>
+                🌐 Detected: <strong>{detectedLang}</strong>
+              </Typography>
+            )}
+
+            {speechSupported && (
+              <Button
+                variant="outlined" fullWidth
+                startIcon={isListening ? <StopIcon /> : <MicIcon />}
+                onClick={handleVoiceInput}
+                sx={{
+                  mt: 2, height: 48, borderRadius: 3, fontWeight: 700, textTransform: "none",
+                  borderColor: isListening ? "error.main" : "primary.main",
+                  color: isListening ? "error.main" : "primary.main",
+                  bgcolor: isListening ? "error.50" : "transparent",
+                  animation: isListening ? "pulse 1.2s ease-in-out infinite" : "none",
+                  "@keyframes pulse": { "0%, 100%": { opacity: 1 }, "50%": { opacity: 0.6 } },
+                  "&:hover": { bgcolor: isListening ? "error.50" : "primary.50" },
+                }}
+              >
+                {isListening ? "Listening… (tap to stop)" : "Speak & Translate"}
+              </Button>
+            )}
+
             <Button
-              variant="contained"
-              fullWidth
+              variant="contained" fullWidth
               startIcon={<TranslateIcon />}
               onClick={handleTranslate}
               disabled={loading || !text.trim()}
-              sx={{ mt: 2, height: 48, borderRadius: 3, fontWeight: 700 }}
+              sx={{ mt: 1.5, height: 48, borderRadius: 3, fontWeight: 700 }}
             >
-              {loading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                "Translate"
-              )}
+              {loading ? <CircularProgress size={20} color="inherit" /> : "Translate"}
             </Button>
           </Paper>
-        </Grid>
+        </Box>
 
         {/* Swap Button */}
-        <Grid item xs={12} md={2} sx={{ textAlign: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,alignSelf: "center" }}>
           <Tooltip title="Swap languages">
             <span>
               <IconButton
                 onClick={handleSwap}
                 disabled={sourceLang === "auto"}
                 sx={{
-                  width: 52,
-                  height: 52,
-                  background:
-                    "linear-gradient(135deg, #1976D2 0%, #00BCD4 100%)",
+                  width: 52, height: 52,
+                  background: "linear-gradient(135deg, #1976D2 0%, #00BCD4 100%)",
                   color: "white",
-                  "&:hover": {
-                    transform: "rotate(180deg)",
-                    transition: "transform 0.4s",
-                  },
+                  "&:hover": { transform: "rotate(180deg)", transition: "transform 0.4s" },
                   "&:disabled": { bgcolor: "grey.300", color: "grey.500" },
                 }}
               >
@@ -207,33 +261,22 @@ const TranslatorView = () => {
               </IconButton>
             </span>
           </Tooltip>
-        </Grid>
+        </Box>
 
         {/* Right Panel */}
-        <Grid item xs={12} md={5}>
+        <Box sx={{ flex: 1 }}>
           <Paper
             elevation={0}
             sx={{
-              p: 3,
-              borderRadius: 3,
-              border: "1px solid",
-              borderColor: "primary.light",
-              height: "100%",
+              p: 3, borderRadius: 3, border: "1px solid",
+              borderColor: "primary.light", height: "auto",
               background: "linear-gradient(135deg, #1976D2 0%, #0d47a1 100%)",
               color: "white",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <TextField
-                select
-                label="To"
+                select label="To"
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
                 sx={{
@@ -242,19 +285,13 @@ const TranslatorView = () => {
                   "& .MuiOutlinedInput-root": {
                     color: "white",
                     "& fieldset": { borderColor: "rgba(255,255,255,0.4)" },
-                    "&:hover fieldset": {
-                      borderColor: "rgba(255,255,255,0.7)",
-                    },
+                    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.7)" },
                   },
                   "& .MuiSelect-icon": { color: "white" },
                 }}
               >
                 {TARGET_LANGS.map((l) => (
-                  <MenuItem
-                    key={l.code}
-                    value={l.code}
-                    sx={{ color: "text.primary" }}
-                  >
+                  <MenuItem key={l.code} value={l.code} sx={{ color: "text.primary" }}>
                     {l.name}
                   </MenuItem>
                 ))}
@@ -268,93 +305,71 @@ const TranslatorView = () => {
 
             <Box
               sx={{
-                minHeight: 170,
-                p: 2,
+                minHeight: 170, p: 2,
                 bgcolor: "rgba(255,255,255,0.12)",
-                borderRadius: 2,
-                display: "flex",
-                alignItems: "center",
+                borderRadius: 2, display: "flex", alignItems: "center",
               }}
             >
               {loading ? (
-                <CircularProgress
-                  color="inherit"
-                  size={28}
-                  sx={{ mx: "auto" }}
-                />
+                <CircularProgress color="inherit" size={28} sx={{ mx: "auto" }} />
               ) : (
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 400, lineHeight: 1.6, width: "100%" }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: 400, lineHeight: 1.6, width: "100%" }}>
                   {translatedText || (
-                    <span style={{ opacity: 0.6 }}>
-                      Translation will appear here...
-                    </span>
+                    <span style={{ opacity: 0.6 }}>Translation will appear here...</span>
                   )}
                 </Typography>
               )}
             </Box>
 
+            <Button
+              variant="contained" fullWidth
+              startIcon={<VolumeUpIcon />}
+              onClick={handleSpeakTranslation}
+              disabled={!translatedText}
+              sx={{
+                mt: 2, height: 48, borderRadius: 3, fontWeight: 700, textTransform: "none",
+                bgcolor: "white", color: "primary.main",
+                "&:hover": { bgcolor: "grey.100" },
+                "&.Mui-disabled": { bgcolor: "rgba(255,255,255,0.3)", color: "rgba(255,255,255,0.5)" },
+              }}
+            >
+              Listen to Translation
+            </Button>
+
             {copied && (
-              <Typography
-                variant="caption"
-                sx={{ color: "rgba(255,255,255,0.8)", mt: 1, display: "block" }}
-              >
+              <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.8)", mt: 1, display: "block" }}>
                 ✓ Copied to clipboard!
               </Typography>
             )}
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {error && (
         <Alert severity="warning" sx={{ mt: 3, borderRadius: 3 }}>
-          Translation service may be temporarily unavailable. Please try again
-          shortly.
+          Translation service may be temporarily unavailable. Please try again shortly.
         </Alert>
       )}
 
       {/* Travel Language Tips */}
       <Paper
         elevation={0}
-        sx={{
-          p: 3,
-          mt: 3,
-          borderRadius: 3,
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "grey.50",
-        }}
+        sx={{ p: 3, mt: 3, borderRadius: 3, border: "1px solid", borderColor: "divider", bgcolor: "grey.50" }}
       >
         <Typography variant="subtitle1" fontWeight={700} mb={1.5}>
           ✈️ Language Tips for Travelers
         </Typography>
         <Grid container spacing={2}>
           {[
-            {
-              tip: "Always learn: Hello, Thank you, Sorry, and Help",
-              icon: "💡",
-            },
-            {
-              tip: "Carry a translated card for dietary restrictions",
-              icon: "🍽️",
-            },
-            {
-              tip: "Save emergency translations offline before travel",
-              icon: "🚨",
-            },
-            {
-              tip: "Download Google Translate's offline language pack",
-              icon: "📱",
-            },
+            { tip: "Always learn: Hello, Thank you, Sorry, and Help", icon: "💡" },
+            { tip: "Carry a translated card for dietary restrictions", icon: "🍽️" },
+            { tip: "Save emergency translations offline before travel", icon: "🚨" },
+            { tip: "Download Google Translate's offline language pack", icon: "📱" },
           ].map((t, i) => (
-            <Grid item xs={12} sm={6} key={i}>
+            <Grid xs={12} sm={6} key={i}>
               <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
                 <Typography sx={{ fontSize: 22 }}>{t.icon}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t.tip}
-                </Typography>
+                <Typography variant="body2" color="text.secondary">{t.tip}</Typography>
               </Box>
             </Grid>
           ))}
