@@ -82,15 +82,6 @@ const CURRENCY_SYMBOLS = {
   AUD: "A$",
 };
 
-const CHART_COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#a855f7",
-  "#f56565",
-];
-
 const ExpensesView = () => {
   const dispatch = useDispatch();
 
