@@ -99,12 +99,12 @@ export default function TravelChecklist() {
       <div
         style={{
           maxWidth: "800px",
-          height:"100vh",
+          height: "100vh",
           margin: "-24px auto 48px",
           padding: "0 16px",
           display: "flex",
           flexDirection: "column",
-          justifyContent:"center",
+          justifyContent: "center",
           gap: "24px",
         }}
       >
@@ -118,18 +118,18 @@ export default function TravelChecklist() {
             border: "1px solid #e2e8f0",
           }}
         >
-            <p
-              style={{
-                margin: 0,
-                color: "#1a4a6b",
-                fontSize: "1.15rem",
-                fontWeight: 700,
-                maxWidth: "600px",
-                textAlign:"left"
-              }}
-            >
-              Enter your destination
-            </p>
+          <p
+            style={{
+              margin: 0,
+              color: "#1a4a6b",
+              fontSize: "1.15rem",
+              fontWeight: 700,
+              maxWidth: "600px",
+              textAlign: "left",
+            }}
+          >
+            Enter your destination
+          </p>
           <form
             onSubmit={handleGenerate}
             style={{
